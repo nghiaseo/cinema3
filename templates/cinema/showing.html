@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Now showing</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'cinema/style.css' %}">
+</head>
+<body>
+<h1 style="text-align: center">Now showing</h1>
+<div class="showing-container">
+    {% for movie in films %}
+    <div class="movie">
+        <h2>{{ movie.name }}</h2>        
+        <p>
+            <a href="movie?id={{ movie.id }}">
+            <img src="{% static 'cinema/images/'%}{{ movie.poster }}" alt="">
+                </a>
+        </p>
+    </div>
+    {% endfor %}    
+</div>
+
+</body>
+
+</html>
