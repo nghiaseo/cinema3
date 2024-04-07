@@ -3,32 +3,45 @@
 <head>
     <meta charset="UTF-8">
 
-    <title>{{ cinema.name }}</title>
+    <title>Cinema Booking</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'cinema/style.css' %}">
 </head>
 <body>
-
-    <div class="actions-container">
-        <button class="btn btn-back"><a href="/">Back</a></button>
-        <button id="book" class="btn" disabled>Book</button>
-    </div>
-    <div class="cinema-container">
-    <div class="seats-container">
-        {% for row in cinema.seats %}
-            <div class="row">
-                {% for seat in row %}
-
-                    <div class="seat {% if seat.status %}booked{% endif %}" data-number="{{ seat.seat_id }}" data-status="{{ seat.status }}">
-                    {{ seat.seat_id }}
-                    </div>
-                {% endfor %}
-            </div>
-        {% endfor %}
-    </div>
-<div class="screen">screen</div>
-
+<div class="menu">
+    <a href="/" style="pointer-events: none">Home</a>
+    <a href="/manage">Manage</a>
 </div>
+<div>
+    <h3>Select cinema</h3>
+    {% if cinemas %}
+        {% for cinema in cinemas %}
+        <div class="cinema" data-id="{{ cinema.id }}">
+            <h4>{{ cinema.name }}</h4>
+            <p>{{ cinema.address }}</p>
+        </div>
+    {% endfor %}
+    {% else %}
+        <p>No cinemas</p>
+    {% endif %}
+    <div>
+
+    </div>
+</div>
+<div>
+    <h3>Select film</h3>
+    {% if films %}
+        {% for film in films %}
+        <div class="film" data-id="{{ film.id }}">
+            <h4>{{ film.name }}</h4>
+            <p>{{ film.description }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No films</p>
+    {% endif %}
+</div>
+
 <script src="{% static 'cinema/script.js' %}"></script>
 </body>
 </html>

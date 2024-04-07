@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'cinema/style.css' %}">
+</head>
+<body>
+<div class="manage-container">
+    <div class="manage-item">
+        <div class="manage-header">
+            <h2>Cinemas</h2>
+            <a href="/manage/create-cinema">
+                <button> Add new cinema</button>
+            </a>
+        </div>
+
+        <div>
+            <table class="table-list">
+                <tr>
+                    <th>
+                        Name
+                    </th>
+                    <th>
+                        Logo
+                    </th>
+                </tr>
+                {% for cinema in cinemas %}
+                    <tr>
+                        <td>
+                            {{ cinema.name }}
+                        </td>
+                        <td>
+                            <img src="{% static 'cinema/images/' %}logo.jpg" alt="logo" width="32" height="32">
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    <div class="manage-item">
+        <div class="manage-header">
+            <h2>Films</h2>
+            <a href="/manage/add-film">
+                <button> Add new film</button>
+            </a>
+        </div>
+        <div>
+            <table class="table-list">
+                <tr>
+                    <th>
+                        Name
+                    </th>
+                    <th>
+                        Poster
+                    </th>
+                </tr>
+                {% for film in films %}
+                    <tr>
+                        <td>
+                            {{ film.name }}
+                        </td>
+                        <td>
+                            <img src="{% static 'cinema/images/' %}{{ film.poster }}" alt="logo" width="100"
+                                 height="100">
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    <div class="manage-item">
+        <div class="manage-header">
+            <h2>Time Frames</h2>
+            <a href="/manage/add-time-frame">
+                <button> Add new time frame</button>
+            </a>
+        </div>
+        <div>
+            <table class="table-list">
+                <tr>
+                    <th>
+                        From
+                    </th>
+                    <th>
+                        To
+                    </th>
+                </tr>
+                {% for time_frame in time_frames %}
+                    <tr>
+                        <td>
+                            {{ time_frame.start_time }}
+                        </td>
+                        <td>
+                            {{ time_frame.end_time }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    <div class="manage-item">
+        <div class="manage-header">
+            <h2>Cinema Halls</h2>
+            <a href="/manage/add-cinema-hall">
+                <button> Add new cinema hall</button>
+            </a>
+        </div>
+        <div>
+            <table class="table-list">
+                <tr>
+                    <th>
+                        Cinema Name
+                    </th>
+                    <th>
+                        Hall Name
+                    </th>
+                    <th>
+                        Capacity
+                    </th>
+                </tr>
+                {% for room in rooms %}
+                    <tr>
+                        <td>
+                            {{ room.cinema_name }}
+                        </td>
+                        <td>
+                            {{ room.name }}
+                        </td>
+                        <td>
+                            {{ room.number_of_seats }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    <div class="manage-item">
+        <div class="manage-header">
+            <h2>Schedules</h2>
+            <a href="/manage/add-schedule">
+                <button> Add new schedule</button>
+            </a>
+        </div>
+        <div>
+            <table class="table-list">
+                <tr>
+                    <th>
+                        Cinema Name
+                    </th>
+                    <th>
+                        Film Name
+                    </th>
+                    <th>
+                        Cinema Hall
+                    </th>
+                    <th>
+                        Time Frame
+                    </th>
+                    <th>
+                        Date
+                    </th>
+                </tr>
+                {% for seance in seances %}
+                    <tr>
+                        <td>
+                            {{ seance.cinema_name }}
+                        </td>
+                        <td>
+                            {{ seance.film_name }}
+                        </td>
+                        <td>
+                            {{ seance.cinema_hall }}
+                        </td>
+                        <td>
+                            {{ seance.time_frame }}
+                        </td>
+                        <td>
+                            {{ seance.date }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

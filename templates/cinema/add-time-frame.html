@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add cinema</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'cinema/style.css' %}">
+</head>
+<body>
+<h1>Add new film</h1>
+<div style="margin-bottom: 12px">
+    <div style="margin-bottom: 12px">
+        <label for="add-time-frame-start">Start </label>
+        <input type="time" id="add-time-frame-start">
+    </div>
+    <div>
+        <label for="add-time-frame-end">End </label>
+        <input type="time" id="add-time-frame-end">
+    </div>
+</div>
+<div id="add-time-frame-error" class="error"></div>
+
+<div class="actions-group">
+    <a href="/manage">
+        <button>Back</button>
+    </a>
+    <button id="add-time-frame">Save</button>
+</div>
+<script src="{% static 'cinema/script.js' %}"></script>
+</body>
+</html>

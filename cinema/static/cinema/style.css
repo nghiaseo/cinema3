@@ -88,3 +88,46 @@ body{
     flex-direction: column;
     align-items: center;
 }
+.menu{
+    display: flex;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid grey;
+}
+.menu a{
+    text-decoration: none;
+    font-weight: bold;
+}
+.manage-container{
+    display: flex;
+    flex-wrap: wrap;
+}
+.manage-item{
+    width: 50%;
+    padding: 16px;
+    box-sizing: border-box;
+}
+.manage-header{
+    display: flex;
+    gap: 24px;
+    align-items: center;
+}
+.error{
+    color: red;
+    font-weight: bold;
+}
+.table-list{
+    border-collapse: collapse;
+}
+.table-list th,.table-list td{
+    border: 1px solid black;
+    padding: 8px;
+}
+.actions-group{
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.actions-group a{
+    text-decoration: none;
+}

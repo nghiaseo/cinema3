@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add cinema</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'cinema/style.css' %}">
+</head>
+<body>
+<h1>Add new cinema</h1>
+<div style="margin-bottom: 12px">
+<label for="create-cinema-name">Name</label>
+<input type="text" id="create-cinema-name">
+</div>
+<div id ="create-cinema-error" class="error"></div>
+
+<div>
+    <a href="/manage"><button>Back</button></a>
+    <button id="save-cinema">Save</button>
+</div>
+<script src="{% static 'cinema/script.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add film</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'cinema/style.css' %}">
+</head>
+<body>
+<h1>Add new film</h1>
+<div style="margin-bottom: 12px">
+    <div style="margin-bottom: 12px">
+        <label for="add-film-name">Name</label>
+        <input type="text" id="add-film-name">
+    </div>
+    <div>
+        <label for="add-film-poster">Poster</label>
+        <input type="text" id="add-film-poster">
+    </div>
+</div>
+<div id="add-film-error" class="error"></div>
+
+<div class="actions-group">
+    <a href="/manage">
+        <button>Back</button>
+    </a>
+    <button id="add-film">Save</button>
+</div>
+<script src="{% static 'cinema/script.js' %}"></script>
+</body>
+</html>
