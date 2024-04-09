@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Add schedule</title>
     {% load static %}
+    {% csrf_token %}
     <link rel="stylesheet" href="{% static 'cinema/style.css' %}">
 </head>
 <body>
@@ -18,11 +19,33 @@
             {% endfor %}
         </select>
     </div>
-    <div>
+    <div style="margin-bottom: 12px">
         <label for="add-schedule-hall">Cinema hall</label>
         <select id="add-schedule-hall">
         </select>
     </div>
+<div style="margin-bottom: 12px">
+    <label for="add-schedule-time">Time frame</label>
+    <select id="add-schedule-time">
+        <option value="">Select time frame</option>
+        {% for time in time_frames %}
+            <option value="{{ time.id }}">{{ time.start_time }} - {{ time.end_time }}</option>
+        {% endfor %}
+    </select>
+</div>
+<div style="margin-bottom: 12px">
+    <label for="add-schedule-date">Show date</label>
+    <input type="date" id="add-schedule-date">
+</div>
+</div>
+<div style="margin-bottom: 12px">
+    <label for="add-schedule-film">Film</label>
+    <select id="add-schedule-film">
+        <option value="">Select film</option>
+        {% for film in films %}
+            <option value="{{ film.id }}">{{ film.name }}</option>
+        {% endfor %}
+    </select>
 </div>
 <div id="add-schedule-error" class="error"></div>
 

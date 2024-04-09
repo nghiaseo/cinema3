@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List, Dict, Any
-from .models import Cinema, Seat, Film, TimeFrame, CinemaHall
+from .models import Cinema, Seat, Film, TimeFrame, CinemaHall, Schedule
 import math
 
 
@@ -11,7 +11,8 @@ def get_list_of_cinemas() -> List[any]:
 
 def get_list_of_films() -> List[any]:
     films = Film.objects.all()
-    return [{'id': film.id, 'name': film.name, 'poster': film.poster if film.poster else 'movie_default.png'} for film in films]
+    return [{'id': film.id, 'name': film.name, 'poster': film.poster if film.poster else 'movie_default.png'} for film
+            in films]
 
 
 def get_list_of_time_frames() -> List[any]:
@@ -29,8 +30,25 @@ def get_list_of_cinema_halls() -> List[any]:
     results = []
     for hall in halls:
         cinema_name = Cinema.objects.get(id=hall.cinema.id).name
-        results.append({'id': hall.id, 'name': hall.name, 'cinema_name': cinema_name, 'number_of_seats': hall.number_of_seats,
-                        'number_of_seats_per_row': hall.number_of_seats_per_row})
+        results.append(
+            {'id': hall.id, 'name': hall.name, 'cinema_name': cinema_name, 'number_of_seats': hall.number_of_seats,
+             'number_of_seats_per_row': hall.number_of_seats_per_row})
+    return results
+
+
+def get_list_of_schedules() -> List[any]:
+    schedules = Schedule.objects.all()
+    results = []
+    for schedule in schedules:
+        film_name = Film.objects.get(id=schedule.film.id).name
+        cinema_hall_name = CinemaHall.objects.get(id=schedule.cinema_hall.id).name
+        cinema_name = Cinema.objects.get(id=CinemaHall.objects.get(id=schedule.cinema_hall.id).cinema.id).name
+        time_frame = TimeFrame.objects.get(id=schedule.time_frame.id)
+        start_time = time_frame.start_time.strftime('%H:%M')
+        end_time = time_frame.end_time.strftime('%H:%M')
+        results.append(
+            {'id': schedule.id, 'cinema_name': cinema_name, 'film_name': film_name, 'cinema_hall': cinema_hall_name, 'start_time': start_time,
+             'end_time': end_time, 'show_date': schedule.show_date})
     return results
 
 
@@ -64,7 +82,8 @@ def add_time_frame_service(start_time: datetime, end_time: datetime) -> Dict[str
     return {'id': time_frame.id, 'start_time': time_frame.start_time, 'end_time': time_frame.end_time}
 
 
-def add_cinema_hall_service(cinema_id: int, name: str, number_of_seats: int, number_of_seats_per_row: int) -> Dict[str, Any]:
+def add_cinema_hall_service(cinema_id: int, name: str, number_of_seats: int, number_of_seats_per_row: int) -> Dict[
+    str, Any]:
     if cinema_id == '':
         return {'error': 'Cinema id cannot be empty'}
     if name == '':
@@ -85,7 +104,24 @@ def add_cinema_hall_service(cinema_id: int, name: str, number_of_seats: int, num
             'number_of_seats_per_row': hall.number_of_seats_per_row}
 
 
+def add_schedule_service(film_id: int, cinema_hall_id: int, time_frame_id: int, show_date: datetime) -> Dict[str, Any]:
+    film = Film.objects.filter(id=film_id)
+    if not film.exists():
+        return {'error': 'Film does not exist'}
 
+    cinema_hall = CinemaHall.objects.filter(id=cinema_hall_id)
+    if not cinema_hall.exists():
+        return {'error': 'Cinema hall does not exist'}
+
+    time_frame = TimeFrame.objects.filter(id=time_frame_id)
+    if not time_frame.exists():
+        return {'error': 'Time frame does not exist'}
+
+    schedule = Schedule(film=film.first(), cinema_hall=cinema_hall.first(), time_frame=time_frame.first(),
+                        show_date=show_date)
+    schedule.save()
+    return {'id': schedule.id, 'film': schedule.film, 'cinema_hall': schedule.cinema_hall,
+            'time_frame': schedule.time_frame, 'show_date': schedule.show_date}
 
 
 '''

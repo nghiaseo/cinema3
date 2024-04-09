@@ -4,9 +4,14 @@
     <meta charset="UTF-8">
     <title>Manage</title>
     {% load static %}
+    {% csrf_token %}
     <link rel="stylesheet" href="{% static 'cinema/style.css' %}">
 </head>
 <body>
+<div class="menu">
+    <a href="/" >Home</a>
+    <a href="/manage" style="pointer-events: none">Manage</a>
+</div>
 <div class="manage-container">
     <div class="manage-item">
         <div class="manage-header">
@@ -162,7 +167,7 @@
                         Date
                     </th>
                 </tr>
-                {% for seance in seances %}
+                {% for seance in schedules %}
                     <tr>
                         <td>
                             {{ seance.cinema_name }}
@@ -174,10 +179,10 @@
                             {{ seance.cinema_hall }}
                         </td>
                         <td>
-                            {{ seance.time_frame }}
+                            {{ seance.start_time }} - {{ seance.end_time}}
                         </td>
                         <td>
-                            {{ seance.date }}
+                            {{ seance.show_date }}
                         </td>
                     </tr>
                 {% endfor %}

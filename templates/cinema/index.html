@@ -5,6 +5,7 @@
 
     <title>Cinema Booking</title>
     {% load static %}
+    {% csrf_token %}
     <link rel="stylesheet" href="{% static 'cinema/style.css' %}">
 </head>
 <body>
@@ -12,15 +13,15 @@
     <a href="/" style="pointer-events: none">Home</a>
     <a href="/manage">Manage</a>
 </div>
+<div style="display: flex; justify-content: space-between;align-items: end">
 <div>
     <h3>Select cinema</h3>
     {% if cinemas %}
+        <select id="cinema">
         {% for cinema in cinemas %}
-        <div class="cinema" data-id="{{ cinema.id }}">
-            <h4>{{ cinema.name }}</h4>
-            <p>{{ cinema.address }}</p>
-        </div>
+            <option value="{{ cinema.id }}">{{ cinema.name }}</option>
     {% endfor %}
+        </select>
     {% else %}
         <p>No cinemas</p>
     {% endif %}
@@ -31,15 +32,37 @@
 <div>
     <h3>Select film</h3>
     {% if films %}
+        <select id="film">
         {% for film in films %}
-        <div class="film" data-id="{{ film.id }}">
-            <h4>{{ film.name }}</h4>
-            <p>{{ film.description }}</p>
-        </div>
+            <option value="{{ film.id }}">{{ film.name }}</option>
         {% endfor %}
+        </select>
     {% else %}
         <p>No films</p>
     {% endif %}
+</div>
+<div>
+    <h3>Select time frame</h3>
+    {% if time_frames %}
+        <select id="time_frame">
+        {% for time_frame in time_frames %}
+            <option value="{{ time_frame.id }}">{{ time_frame.start_time }} - {{ time_frame.end_time }}</option>
+        {% endfor %}
+        </select>
+    {% else %}
+        <p>No time frames</p>
+    {% endif %}
+</div>
+<div>
+    <h3>Select date</h3>
+    <input type="date" id="date">
+</div>
+<div>
+    <button id="find-shows">Find available shows</button>
+</div>
+</div>
+<div>
+    <table id = 'find-shows-table'></table>
 </div>
 
 <script src="{% static 'cinema/script.js' %}"></script>

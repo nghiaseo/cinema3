@@ -2,7 +2,8 @@ from datetime import datetime
 from django.http import HttpResponseBadRequest, HttpResponse
 from django.shortcuts import render
 from cinema.cinema import get_list_of_cinemas, add_cinema, add_film_service, get_list_of_films, add_time_frame_service, \
-    get_list_of_time_frames, add_cinema_hall_service, get_list_of_cinema_halls
+    get_list_of_time_frames, add_cinema_hall_service, get_list_of_cinema_halls, add_schedule_service, \
+    get_list_of_schedules
 import json
 
 from cinema.models import CinemaHall
@@ -12,7 +13,12 @@ from cinema.models import CinemaHall
 
 def index(request):
     cinemas = get_list_of_cinemas()
-    context = {'cinemas': cinemas}
+    films = get_list_of_films()
+    time_frames = get_list_of_time_frames()
+    time = []
+    for time_frame in time_frames:
+        time.append({'id': time_frame['id'], 'start_time': time_frame['start_time'], 'end_time': time_frame['end_time']})
+    context = {'cinemas': cinemas, 'films': films, 'time_frames': time}
     return render(request, 'cinema/index.html', context)
 
 
@@ -21,8 +27,9 @@ def manage(request):
     films = get_list_of_films()
     time_frames = get_list_of_time_frames()
     rooms = get_list_of_cinema_halls()
+    schedules = get_list_of_schedules()
 
-    context = {'cinemas': cinemas, 'films': films, 'time_frames': time_frames, 'rooms': rooms}
+    context = {'cinemas': cinemas, 'films': films, 'time_frames': time_frames, 'rooms': rooms, 'schedules': schedules}
     return render(request, 'cinema/manage.html', context)
 
 
@@ -104,10 +111,14 @@ def add_schedule(request):
     if request.method == 'POST':
         body = json.loads(request.body.decode('utf-8'))
         film = body['film']
-        cinema_hall = body['room']
-        time_frame = body['time_frame']
-        show_date = body['show_date']
-        return HttpResponse(status=200)
+        cinema_hall = body['hall']
+        time_frame = body['time']
+        show_date = body['date']
+        if film == '' or cinema_hall == '' or time_frame == '' or show_date == '':
+            return HttpResponseBadRequest(json.dumps({'error': 'All fields are required'}))
+        else:
+            add_schedule_service(film, cinema_hall, time_frame, show_date)
+            return HttpResponse(status=200)
 
 
 '''

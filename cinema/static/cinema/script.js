@@ -1,5 +1,6 @@
 bookings = [];
 function getCookie(name) {
+    console.log('getCookie',document.cookie);
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
@@ -180,10 +181,10 @@ window.onload = function() {
     })
 
     document.getElementById('add-schedule')?.addEventListener('click',()=> {
-        const cinema = document.getElementById('add-schedule-cinema').value;
         const hall = document.getElementById('add-schedule-hall').value;
         const film = document.getElementById('add-schedule-film').value;
         const time = document.getElementById('add-schedule-time').value;
+        const date = document.getElementById('add-schedule-date').value;
         fetch('/manage/add-schedule/', {
             method: 'POST',
             headers: {
@@ -191,7 +192,7 @@ window.onload = function() {
                 'X-CSRFToken': csrftoken,
             },
             body: JSON.stringify({
-                cinema,
+                date,
                 hall,
                 film,
                 time
@@ -208,6 +209,64 @@ window.onload = function() {
                 });
             }
         })
+    })
+
+    //add event listener to the find-shows button
+    document.getElementById('find-shows')?.addEventListener('click',()=> {
+        const cinema = document.getElementById('cinema').value;
+        const film = document.getElementById('film').value;
+        const time_frame = document.getElementById('time_frame').value;
+        const date = document.getElementById('date').value;
+        fetch('/find-shows/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({
+                cinema,
+                film,
+                time_frame,
+                date
+            })
+        }) .then(data => {
+        if(data.status === 200) {
+            data.json().then(data => {
+                const table = document.getElementById('find-shows-table');
+                table.innerHTML = '';
+                data.forEach(show => {
+                    const row = document.createElement('tr');
+                    const date = document.createElement('td');
+                    date.innerText = show.date;
+                    row.appendChild(date);
+                    const time = document.createElement('td');
+                    time.innerText = show.time;
+                    row.appendChild(time);
+                    const hall = document.createElement('td');
+                    hall.innerText = show.hall;
+                    row.appendChild(hall);
+                    const film = document.createElement('td');
+                    film.innerText = show.film;
+                    row.appendChild(film);
+                    const book = document.createElement('td');
+                    const button = document.createElement('button');
+                    button.innerText = 'Book';
+                    button.addEventListener('click',()=> {
+                        location.href = `/book/?id=${show.id}`;
+                    })
+                    book.appendChild(button);
+                    row.appendChild(book);
+                    table.appendChild(row);
+                })
+            });
+        } else {
+            // read body of the response
+            data.json().then(data => {
+                const error = document.getElementById('find-shows-error');
+                error.innerText = data.error;
+            });
+        }
+    })
     })
 }
 
