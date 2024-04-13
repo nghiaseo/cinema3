@@ -1,4 +1,5 @@
-bookings = [];
+let bookings = [];
+let total = 0;
 function getCookie(name) {
     console.log('getCookie',document.cookie);
     let cookieValue = null;
@@ -17,11 +18,12 @@ function getCookie(name) {
 }
 const csrftoken = getCookie('csrftoken');
 window.onload = function() {
-    // seats = document.querySelectorAll('.seat');
-    // seats.forEach(seat => {
-    //     seat.addEventListener('click',()=> onSeatClick(seat));
-    // });
-    // document.getElementById('book').addEventListener('click',()=> onBook());
+    bookings = [];
+    const seats = document.querySelectorAll('.seat');
+    seats.forEach(seat => {
+        seat.addEventListener('click',()=> onSeatClick(seat));
+    });
+    document.getElementById('btn-confirm-book')?.addEventListener('click',()=> onBook());
 
     // add event listener to the save-cinema button
     document.getElementById('save-cinema')?.addEventListener('click',()=> {
@@ -180,11 +182,42 @@ window.onload = function() {
         })
     })
 
-    document.getElementById('add-schedule')?.addEventListener('click',()=> {
+    document.getElementById('add-schedule')?.addEventListener('click',(event)=> {
         const hall = document.getElementById('add-schedule-hall').value;
         const film = document.getElementById('add-schedule-film').value;
         const time = document.getElementById('add-schedule-time').value;
         const date = document.getElementById('add-schedule-date').value;
+        const price = document.getElementById('add-schedule-price').value;
+        const schedule_id = event.target.dataset.scheduleId;
+        if(schedule_id) {
+            fetch('/manage/edit-schedule/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({
+                    date,
+                    hall,
+                    film,
+                    time,
+                    schedule_id,
+                    price
+                })
+            })
+            .then(data => {
+                if(data.status === 200) {
+                    location.href = '/manage';
+                } else {
+                    // read body of the response
+                    data.json().then(data => {
+                        const error = document.getElementById('add-schedule-error');
+                        error.innerText = data.error;
+                    });
+                }
+            })
+        }
+        else
         fetch('/manage/add-schedule/', {
             method: 'POST',
             headers: {
@@ -195,7 +228,8 @@ window.onload = function() {
                 date,
                 hall,
                 film,
-                time
+                time,
+                price
             })
         })
         .then(data => {
@@ -215,7 +249,7 @@ window.onload = function() {
     document.getElementById('find-shows')?.addEventListener('click',()=> {
         const cinema = document.getElementById('cinema').value;
         const film = document.getElementById('film').value;
-        const time_frame = document.getElementById('time_frame').value;
+        // const time_frame = document.getElementById('time_frame').value;
         const date = document.getElementById('date').value;
         fetch('/find-shows/', {
             method: 'POST',
@@ -226,56 +260,158 @@ window.onload = function() {
             body: JSON.stringify({
                 cinema,
                 film,
-                time_frame,
+                // time_frame,
                 date
             })
         }) .then(data => {
         if(data.status === 200) {
             data.json().then(data => {
-                const table = document.getElementById('find-shows-table');
-                table.innerHTML = '';
-                data.forEach(show => {
-                    const row = document.createElement('tr');
-                    const date = document.createElement('td');
-                    date.innerText = show.date;
-                    row.appendChild(date);
-                    const time = document.createElement('td');
-                    time.innerText = show.time;
-                    row.appendChild(time);
-                    const hall = document.createElement('td');
-                    hall.innerText = show.hall;
-                    row.appendChild(hall);
-                    const film = document.createElement('td');
-                    film.innerText = show.film;
-                    row.appendChild(film);
-                    const book = document.createElement('td');
-                    const button = document.createElement('button');
-                    button.innerText = 'Book';
-                    button.addEventListener('click',()=> {
-                        location.href = `/book/?id=${show.id}`;
-                    })
-                    book.appendChild(button);
-                    row.appendChild(book);
-                    table.appendChild(row);
-                })
+                presentShow(data);
             });
         } else {
             // read body of the response
             data.json().then(data => {
-                const error = document.getElementById('find-shows-error');
+                const error = document.getElementById('index-error');
                 error.innerText = data.error;
             });
         }
     })
     })
+
+    //add event listener to the cancel button
+    document.getElementById('cancel')?.addEventListener('click',()=> {
+        document.getElementById('cancel').classList.remove('show');
+        bookings = [];
+        document.querySelectorAll('.selected').forEach(seat => {
+            seat.classList.remove('selected');
+        })
+        const confirmBtn = document.getElementById('confirmBtn');
+        confirmBtn.disabled = true;
+
+    })
+
+    //add event listener to the edit schedule buttons
+    document.querySelectorAll('.btn-edit-schedule')?.forEach(button => {
+        button.addEventListener('click',()=> {
+            const id = button.dataset.scheduleId;
+            window.location.href = `/manage/edit-schedule/?id=${id}`;
+        })
+    })
+
+    //get all available shows
+    getAllAvailableShows()
+
+    //add event listener to the confirmModal
+    const modal =document.getElementById('confirmModal')
+    modal?.addEventListener('show.bs.modal', function (event) {
+        const message = document.getElementById('booking-message');
+        message.innerText = 'You are about to book '+bookings.length+' seats : '+bookings.join(',');
+        total = bookings.length * price;
+        const totalPrice = document.getElementById('total-price');
+        totalPrice.innerText = 'Total Price: '+total;
+    })
+}
+
+getAllAvailableShows = function() {
+    fetch('/find-shows/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({
+            cinema:'',
+            date:'',
+            film:''
+        })
+    }) .then(data => {
+        if(data.status === 200) {
+            data.json().then(data => {
+                presentShow(data);
+            });
+        } else {
+            // read body of the response
+            data.json().then(data => {
+                const error = document.getElementById('index-error');
+                error.innerText = data.error;
+            });
+        }
+    })
+
+}
+
+presentShow = function(data) {
+    const table = document.getElementById('find-shows-table');
+    if(!table) return
+                table.innerHTML = '';
+                const header = document.createElement('tr');
+                const cinema_header = document.createElement('th');
+                cinema_header.innerText = 'Cinema';
+                header.appendChild(cinema_header);
+                const hall_header = document.createElement('th');
+                hall_header.innerText = 'Hall';
+                header.appendChild(hall_header);
+                const film_header = document.createElement('th');
+                film_header.innerText = 'Film';
+                header.appendChild(film_header);
+                const date_header = document.createElement('th');
+                date_header.innerText = 'Date';
+                header.appendChild(date_header);
+                const start_header = document.createElement('th');
+                start_header.innerText = 'Start Time';
+                header.appendChild(start_header);
+                const end_header = document.createElement('th');
+                end_header.innerText = 'End Time';
+                header.appendChild(end_header);
+                const price_header = document.createElement('th');
+                price_header.innerText = 'Price';
+                header.appendChild(price_header);
+                const book_header = document.createElement('th');
+                book_header.innerText = 'Book';
+                header.appendChild(book_header);
+                table.appendChild(header);
+                data.forEach(show => {
+                    const row = document.createElement('tr');
+                    const cinema = document.createElement('td');
+                    cinema.innerText = show.cinema;
+                    row.appendChild(cinema);
+                    const hall_name = document.createElement('td');
+                    hall_name.innerText = show.hall;
+                    row.appendChild(hall_name);
+                    const film = document.createElement('td');
+                    film.innerText = show.film;
+                    row.appendChild(film);
+                    const date = document.createElement('td');
+                    date.innerText = show.show_date;
+                    row.appendChild(date);
+                    const start = document.createElement('td');
+                    start.innerText = show.start_time;
+                    row.appendChild(start);
+                    const end = document.createElement('td');
+                    end.innerText = show.end_time;
+                    row.appendChild(end);
+                    const price = document.createElement('td');
+                    price.innerText = show.ticket_price
+                    row.appendChild(price);
+                    const book = document.createElement('td');
+                    const button = document.createElement('button');
+                    button.className = 'btn btn-primary';
+
+                    button.innerText = 'Book';
+                    button.addEventListener('click',()=> {
+                        location.href = `/book-ticket/?id=${show.id}`;
+                    })
+                    book.appendChild(button);
+                    row.appendChild(book);
+                    table.appendChild(row);
+                })
 }
 
 onSeatClick = function(seat) {
     if(seat.dataset.status === 'True') return
-    console.log(seat,seat.dataset.number,seat.dataset.status);
     if(seat.classList.contains('selected')) {
         seat.classList.remove('selected');
-        index = bookings.indexOf(seat.dataset.number);
+        const index = bookings.indexOf(seat.dataset.number);
         if(index > -1) {
             bookings.splice(index,1);
         }
@@ -283,11 +419,20 @@ onSeatClick = function(seat) {
         seat.classList.add('selected');
         bookings.push(seat.dataset.number);
     }
-    document.getElementById('book').disabled = bookings.length <= 0;
+    if(document.getElementById('confirmBtn'))
+    document.getElementById('confirmBtn').disabled = bookings.length <= 0;
+    const btnCancel = document.getElementById('cancel');
+    if(btnCancel) {
+        if(bookings.length > 0)
+        btnCancel.classList.add('show');
+        else
+        btnCancel.classList.remove('show');
+    }
+
 }
 onBook = function() {
     const id = new URLSearchParams(window.location.search).get('id');
-    fetch('/book/', {
+    fetch('/book-ticket/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -296,7 +441,8 @@ onBook = function() {
         },
         body: JSON.stringify({
             'bookings': bookings,
-            'id': id,
+            'schedule_id': id,
+            'total': total
         })
     })
     .then(data => {

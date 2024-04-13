@@ -9,15 +9,16 @@ body{
 
 }
 .seats-container{
-
-    display: grid;
-    grid-template-rows: repeat(5, 1fr);
-    grid-gap: 8px;
+    display: flex;
+    flex-direction: column-reverse;
     padding: 16px;
+    gap: 8px;
+
 }
 .row{
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    gap: 8px;
 }
 .seat{
     height: 50px;
@@ -44,18 +45,22 @@ body{
     pointer-events: none;
     opacity: 0.5;
 }
-.btn{
-    padding: 8px 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
+
+#cancel{
+    display: none;
+}
+.btn.danger{
+    background-color: #dc3545;
 }
 .btn:disabled{
     opacity: 0.3;
     cursor:default;
+}
+.show{
+    display: block !important;
+}
+.hide{
+    display: none !important;
 }
 .btn.btn-back{
     background-color: #6c757d;
@@ -130,4 +135,13 @@ body{
 }
 .actions-group a{
     text-decoration: none;
+}
+#find-shows-table{
+    border-collapse: collapse;
+    border: 1px solid black;
+    margin-top: 24px;
+}
+#find-shows-table th,#find-shows-table td{
+    border: 1px solid black;
+    padding: 8px;
 }

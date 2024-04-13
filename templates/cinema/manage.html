@@ -166,6 +166,8 @@
                     <th>
                         Date
                     </th>
+                    <th>Price</th>
+                    <th></th>
                 </tr>
                 {% for seance in schedules %}
                     <tr>
@@ -184,11 +186,40 @@
                         <td>
                             {{ seance.show_date }}
                         </td>
+                        <td>{{ seance.ticket_price }}</td>
+                    <td><button data-schedule-id="{{ seance.id }}" class="btn btn-primary btn-edit-schedule">Edit</button></td>
                     </tr>
                 {% endfor %}
             </table>
         </div>
     </div>
+    <div class="manage-item">
+        <div class="manage-header">
+            <h2>Income</h2>
+        </div>
+        <div>
+            <table class="table-list">
+                <tr>
+                    <th>
+                        Cinema Name
+                    </th>
+                    <th>
+                        Income
+                    </th>
+                </tr>
+                {% for income in income_list %}
+                    <tr>
+                        <td>
+                            {{ income.cinema }}
+                        </td>
+                        <td>
+                            {{ income.income }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
 </div>
+<script src="{% static 'cinema/script.js' %}"></script>
 </body>
 </html>

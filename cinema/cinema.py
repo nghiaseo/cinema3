@@ -47,8 +47,9 @@ def get_list_of_schedules() -> List[any]:
         start_time = time_frame.start_time.strftime('%H:%M')
         end_time = time_frame.end_time.strftime('%H:%M')
         results.append(
-            {'id': schedule.id, 'cinema_name': cinema_name, 'film_name': film_name, 'cinema_hall': cinema_hall_name, 'start_time': start_time,
-             'end_time': end_time, 'show_date': schedule.show_date})
+            {'id': schedule.id, 'cinema_name': cinema_name, 'film_name': film_name, 'cinema_hall': cinema_hall_name,
+             'start_time': start_time,
+             'end_time': end_time, 'show_date': schedule.show_date, 'ticket_price': schedule.ticket_price})
     return results
 
 
@@ -104,7 +105,7 @@ def add_cinema_hall_service(cinema_id: int, name: str, number_of_seats: int, num
             'number_of_seats_per_row': hall.number_of_seats_per_row}
 
 
-def add_schedule_service(film_id: int, cinema_hall_id: int, time_frame_id: int, show_date: datetime) -> Dict[str, Any]:
+def add_schedule_service(film_id: int, cinema_hall_id: int, time_frame_id: int, show_date: datetime, ticket_price:float) -> Dict[str, Any]:
     film = Film.objects.filter(id=film_id)
     if not film.exists():
         return {'error': 'Film does not exist'}
@@ -118,86 +119,36 @@ def add_schedule_service(film_id: int, cinema_hall_id: int, time_frame_id: int, 
         return {'error': 'Time frame does not exist'}
 
     schedule = Schedule(film=film.first(), cinema_hall=cinema_hall.first(), time_frame=time_frame.first(),
-                        show_date=show_date)
+                        show_date=show_date, ticket_price=ticket_price)
     schedule.save()
     return {'id': schedule.id, 'film': schedule.film, 'cinema_hall': schedule.cinema_hall,
             'time_frame': schedule.time_frame, 'show_date': schedule.show_date}
 
 
-'''
-def getCinemaInfo(name: str,film_id:int) -> dict[str, Any]:
-    cinema = Cinema.objects.filter(name=name)
-    context = {}
-    list_of_seats = []
-    if cinema.exists():
+def update_schedule_service(schedule_id: int, film_id: int, cinema_hall_id: int, time_frame_id: int,
+                            show_date: datetime,
+                            ticket_price: float) -> Dict[str, Any]:
+    schedule = Schedule.objects.filter(id=schedule_id)
+    if not schedule.exists():
+        return {'error': 'Schedule does not exist'}
+    film = Film.objects.filter(id=film_id)
+    if not film.exists():
+        return {'error': 'Film does not exist'}
 
-        cinema = cinema.first()
-        resutls = [{'name': cinema.name, 'number_of_seats': cinema.number_of_seats,
-                    'number_of_seats_per_row': cinema.number_of_seats_per_row}]
-        number_of_seats = resutls[0]['number_of_seats']
-        number_of_seats_per_row = resutls[0]['number_of_seats_per_row']
-        number_of_rows = math.ceil(number_of_seats / number_of_seats_per_row)
-        for i in range(number_of_rows - 1, -1, -1):
-            seat_in_row = []
-            for j in range(number_of_seats_per_row - 1, -1, -1):
-                if i * number_of_seats_per_row + j + 1 <= number_of_seats:
-                    try:
-                        seat = SeatsStatusByFilms.objects.get(seat_id=i * number_of_seats_per_row + j + 1,film_id=film_id)
-                        seat_in_row.append(seat)
+    cinema_hall = CinemaHall.objects.filter(id=cinema_hall_id)
+    if not cinema_hall.exists():
+        return {'error': 'Cinema hall does not exist'}
 
-                    except SeatsStatusByFilms.DoesNotExist:
-                        s = SeatsStatusByFilms(seat_id=i * number_of_seats_per_row + j + 1, film_id=film_id, status=False)
-                        s.save()
-                        seat_in_row.append(s)
+    time_frame = TimeFrame.objects.filter(id=time_frame_id)
+    if not time_frame.exists():
+        return {'error': 'Time frame does not exist'}
 
-            list_of_seats.append(seat_in_row)
-
-        context = {
-            'cinema':
-                {
-                    'name': resutls[0]['name'],
-                    'number_of_seats': range(number_of_seats),
-                    'number_of_seats_per_row': range(number_of_seats_per_row),
-                    'number_of_rows': enumerate(range(number_of_rows)),
-                    'seats': list_of_seats
-                }
-        }
-
-    return context
-
-
-def getSeatInfo(seat_number: int):
-    seat = Seat.objects.filter(number=seat_number)
-    context = {}
-    if (seat.exists()):
-        seat = seat.first()
-        resutls = [{'seat_number': seat.number, 'status': seat.booked}]
-        context = {
-            'seat_number': resutls[0]['seat_number'],
-            'status': resutls[0]['status'],
-        }
-
-    return context
-
-
-def bookSeat(seat_number: int,film_id:int):
-    try:
-        seat = SeatsStatusByFilms.objects.get(seat_id=seat_number,film_id=film_id)
-        seat.status = True
-        seat.save()
-        return True
-    except SeatsStatusByFilms.DoesNotExist:
-        return False
-
-
-def getFilms():
-    films = Film.objects.all()
-    context = {
-        'films': []
-    }
-    if films.exists():
-        context = {
-            'films': list(films)
-        }
-    return context
-'''
+    schedule = schedule.first()
+    schedule.film = film.first()
+    schedule.cinema_hall = cinema_hall.first()
+    schedule.time_frame = time_frame.first()
+    schedule.show_date = show_date
+    schedule.ticket_price = ticket_price
+    schedule.save()
+    return {'id': schedule.id, 'film': schedule.film, 'cinema_hall': schedule.cinema_hall,
+            'time_frame': schedule.time_frame, 'show_date': schedule.show_date, 'ticket_price': schedule.ticket_price}
